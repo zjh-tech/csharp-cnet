@@ -15,5 +15,7 @@ namespace Framework.ETcp
         void ProcessMsg(byte[] datas, ISession sess);
 
         UInt32 GetPackageMaxLen();
+
+        ICoder Clone();
     }
 }

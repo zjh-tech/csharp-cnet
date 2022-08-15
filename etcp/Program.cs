@@ -61,7 +61,7 @@ public class GatewaySession : IClientSessionHandler
     void IClientSessionHandler.OnConnect(ClientSession sess)
     {
         GlobalVar.ELog.Info("OnEstablish");
-        c2s_heartbeat_req req = new c2s_heartbeat_req();
+        c2s_heartbeat_req req = new c2s_heartbeat_req();        
         sess.SendProtoMsg((uint)C2SLogicMsgId.C2SHeartbeatReqId, req);
     }
 
@@ -87,10 +87,9 @@ public class GatewaySession : IClientSessionHandler
 
     bool OnHandlerS2CHeartbeatRes(ClientSession sess, byte[] datas)
     {
-        s2c_heartbeat_res ack = s2c_heartbeat_res.Parser.ParseFrom(datas);
-        GlobalVar.ELog.Info("S2CHeartbeatRes");
+        s2c_heartbeat_res ack = s2c_heartbeat_res.Parser.ParseFrom(datas);        
 
-        c2s_heartbeat_req req = new c2s_heartbeat_req();
+        c2s_heartbeat_req req = new c2s_heartbeat_req();        
         sess.SendProtoMsg((uint)C2SLogicMsgId.C2SHeartbeatReqId, req);
 
         return true;
@@ -112,8 +111,10 @@ class Program
         ClientSessionMgr clientSessMgr = new ClientSessionMgr();
         string host = "192.168.97.134";
         UInt32 port = 1299;
-        GatewaySession gateway = new GatewaySession();        
-        Coder coder = new Coder();
+        GatewaySession gateway = new GatewaySession();
+        ClientCoder coder = new ClientCoder();
+        byte[] xorkey = new byte[] { 0x0C, 0xF0, 0x2D, 0x7B, 0x39, 0x08, 0xFE, 0x21, 0xBB, 0x41, 0x58 };
+        coder.SetEncryptInfo(ClientCoderDef.ClientXorEncryptType, xorkey);
         UInt64 gatewaySessionID = clientSessMgr.Connect(host, port, gateway, coder);
 
         bool busy = false;

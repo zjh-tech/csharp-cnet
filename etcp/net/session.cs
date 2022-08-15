@@ -63,7 +63,11 @@ namespace Framework.ETcp
         public bool AsyncSendMsg(UInt32 msg_id, byte[] datas)
         {
             byte[] all_datas;
-            coder.PackMsg(msg_id, datas,out all_datas);
+            if (coder.PackMsg(msg_id, datas, out all_datas) == false)
+            {
+                GlobalVar.ELog.Errorf("[Session] SesssionID={0} SendMsg MsgId={1} PackMsg Error", GetSessID(), msg_id);
+                return false;
+            }
 
             if (all_datas.Length >= coder.GetPackageMaxLen())
             {

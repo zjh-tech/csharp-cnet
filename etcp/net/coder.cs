@@ -79,28 +79,10 @@ namespace Framework.ETcp
             return (UInt32)NetDef.PACKAGE_DEFAULT_MAX_SIZE;
         }
 
-        //public bool EncodeBody(byte[] content, out byte[] out_content)
-        //{
-        //    out_content = content;
-        //    return false;
-        //}
-
-        //public void DecodeBody(byte[] content, out byte[] out_content)
-        //{
-        //    out_content = content;
-        //}
-
-        //public bool ZipBody(byte[] content, out byte[] out_content)
-        //{
-        //    out_content = content;
-        //    return false;
-        //}
-
-        //public bool UnzipBody(byte[] content, out byte[] out_content)
-        //{            
-        //    out_content = content;
-        //    return true;
-        //}
+        public ICoder Clone()
+        {
+            return new Coder();
+        }
 
         private MsgHeader msg_header = new MsgHeader();
         private const UInt32 PackageHeaderLen = 4;      
