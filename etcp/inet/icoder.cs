@@ -6,7 +6,7 @@ namespace Framework.ETcp
     {
         UInt32 GetHeaderLen();
 
-        bool GetBodyLen(byte[] datas, out UInt32 body_len);
+        bool GetBodyLen(byte[] datas,int offset, out UInt32 body_len);
 
         bool PackMsg(UInt32 msgId, byte[] datas, out byte[] out_datas);
 
