@@ -291,7 +291,7 @@ namespace Framework.ETcp
                         return;
                     }
 
-                    bool error_flag = coder.GetBodyLen(loop_buffer.LastBuffer, out body_len);
+                    bool error_flag = coder.GetBodyLen(loop_buffer.LastBuffer,0, out body_len);
                     if (error_flag == false)
                     {
                         GlobalVar.ELog.Errorf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer GetBodyLen Error", conn_id);
@@ -330,7 +330,7 @@ namespace Framework.ETcp
                     return;
                 }
 
-                bool body_error_flag = coder.GetBodyLen(loop_buffer.Buffer, out body_len);
+                bool body_error_flag = coder.GetBodyLen(loop_buffer.Buffer,offset, out body_len);
                 if (body_error_flag == false)
                 {
                     GlobalVar.ELog.Errorf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer GetBodyLen Error", conn_id);

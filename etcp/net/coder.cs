@@ -16,9 +16,9 @@ namespace Framework.ETcp
             return PackageHeaderLen;
         }
 
-        public bool GetBodyLen(byte[] datas, out UInt32 body_len)
+        public bool GetBodyLen(byte[] datas, int offset, out UInt32 body_len)
         {
-            MemoryStream memstream = new MemoryStream(datas);
+            MemoryStream memstream = new MemoryStream(datas,offset,datas.Length);
             BinaryReader reader = new BinaryReader(memstream);            
             byte[] body_len_bytes = reader.ReadBytes(sizeof(UInt32));
             Array.Reverse(body_len_bytes);
