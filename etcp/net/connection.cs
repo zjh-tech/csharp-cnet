@@ -281,6 +281,8 @@ namespace Framework.ETcp
 
                 if (loop_buffer.LastFlag)
                 {
+                    //优化: 先拷贝包头,解析出包体长度后再拷包体
+                    //LastBuffer Socket缓冲区
                     Array.Copy(loop_buffer.Buffer, 0, loop_buffer.LastBuffer, loop_buffer.LastSize, bytes);
                     int old_lastsize = loop_buffer.LastSize;
                     loop_buffer.LastSize += bytes;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections.Concurrent;
 
 namespace Framework.ETcp
 {
@@ -26,7 +27,7 @@ namespace Framework.ETcp
         public bool Init(ILog log)
         {
             GlobalVar.ELog = log;
-            event_queue = new Queue<IEvent>();            
+            event_queue = new ConcurrentQueue<IEvent>();            
             return true;
         }
 
@@ -47,13 +48,16 @@ namespace Framework.ETcp
             }
 
             for (int i = 0; i < count; ++i)
-            {                
-                IEvent evt = event_queue.Dequeue();
+            {
+                IEvent evt = null;                
+                if (event_queue.TryDequeue(out evt))
+                {
+                    continue;
+                }
                 if (evt == null)
                 {
                     continue;
                 }
-
                 evt.ProcessMsg();               
             }
 
@@ -141,7 +145,7 @@ namespace Framework.ETcp
             event_queue.Enqueue(evt);
         }
         
-        private Queue<IEvent> event_queue = null;
+        private ConcurrentQueue<IEvent> event_queue = null;
 
         public static Net Instance = new Net();
     }
