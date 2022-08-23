@@ -281,35 +281,46 @@ namespace Framework.ETcp
 
                 if (loop_buffer.LastFlag)
                 {
-                    //优化: 先拷贝包头,解析出包体长度后再拷包体
-                    //LastBuffer Socket缓冲区
-                    Array.Copy(loop_buffer.Buffer, 0, loop_buffer.LastBuffer, loop_buffer.LastSize, bytes);
                     int old_lastsize = loop_buffer.LastSize;
-                    loop_buffer.LastSize += bytes;
 
-                    if (loop_buffer.LastSize < header_len)
-                    {
-                        GlobalVar.ELog.Debugf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer Lastbuffer Not Enough Header Length", conn_id);
-                        return;
+                    UInt32 need_header_len = header_len - (UInt32)loop_buffer.LastSize;
+                    if (need_header_len != 0)
+                    {                        
+                        if (bytes < need_header_len)
+                        {
+                            GlobalVar.ELog.Debugf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer Lastbuffer Not Enough Header Length", conn_id);
+                            Array.Copy(loop_buffer.Buffer, 0, loop_buffer.LastBuffer, loop_buffer.LastSize, bytes);
+                            loop_buffer.LastSize += bytes;
+                            return;
+                        }   
+                        
+                        Array.Copy(loop_buffer.Buffer, 0, loop_buffer.LastBuffer, loop_buffer.LastSize, need_header_len);
+                        loop_buffer.LastSize += (int)need_header_len;                        
                     }
 
-                    bool error_flag = coder.GetBodyLen(loop_buffer.LastBuffer,0, out body_len);
+                    bool error_flag = coder.GetBodyLen(loop_buffer.LastBuffer, 0, out body_len);
                     if (error_flag == false)
                     {
                         GlobalVar.ELog.Errorf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer GetBodyLen Error", conn_id);
+                        Terminate();
                         return;
                     }
-
-                    total_len = header_len + body_len;
+                                     
+                    if (((UInt32)bytes - need_header_len) < body_len) {
+                        GlobalVar.ELog.Debugf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer Lastbuffer Not Enough One Package", conn_id);
+                        Array.Copy(loop_buffer.Buffer, 0, loop_buffer.LastBuffer, loop_buffer.LastSize, bytes-need_header_len);
+                        loop_buffer.LastSize += (bytes - (int)need_header_len);
+                        return;
+                    } 
+                    
+                    Array.Copy(loop_buffer.Buffer, 0, loop_buffer.LastBuffer, loop_buffer.LastSize, body_len);
+                    loop_buffer.LastSize += (int)body_len;
+                    
+                    total_len = header_len + body_len;             
                     if (total_len > NetDef.PACKAGE_DEFAULT_MAX_SIZE)
                     {
                         GlobalVar.ELog.Errorf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer Lastbuffer Greater Than Package Length", conn_id);
-                        return;
-                    }
-
-                    if (total_len > loop_buffer.LastBuffer.Length)
-                    {
-                        GlobalVar.ELog.Debugf("[Net] [Connection] ConnID={0} ProcessReceiveBuffer Lastbuffer Not Enough One Package", conn_id);
+                        Terminate();
                         return;
                     }
 
